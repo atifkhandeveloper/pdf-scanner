@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:aapt="http://schemas.android.com/aapt" android:height="500dp" android:width="500dp" android:viewportWidth="253.65" android:viewportHeight="253.65">
+    <path android:fillColor="#2ac3a3" android:pathData="M126.83,126.83m-126.83,0a126.83,126.83 0,1 1,253.66 0a126.83,126.83 0,1 1,-253.66 0"/>
+    <path android:fillColor="#fff" android:pathData="M75.43,77.56V181a17.89,17.89 0,0 0,17.89 17.89h76A17.89,17.89 0,0 0,187.19 181V98.11L148.75,59.67H93.32A17.89,17.89 0,0 0,75.43 77.56Z"/>
+    <path android:fillColor="#eae1dc" android:pathData="M187.19,98.11V181a17.89,17.89 0,0 1,-17.89 17.89h-38V59.67h17.44Z"/>
+    <path android:fillColor="#cec5c0" android:pathData="M187.19,98.11 L148.75,59.67V98.11Z"/>
+    <path android:fillColor="#ff807d" android:pathData="M187.59,169.55H75A11.66,11.66 0,0 1,63.38 157.9V127.55A11.66,11.66 0,0 1,75 115.9H187.59a11.66,11.66 0,0 1,11.65 11.65V157.9A11.66,11.66 0,0 1,187.59 169.55Z"/>
+    <path android:fillColor="#fc3e53" android:pathData="M199.24,127.55V157.9a11.66,11.66 0,0 1,-11.65 11.65H131.31V115.9h56.28A11.66,11.66 0,0 1,199.24 127.55Z"/>
+    <path android:fillColor="#eae1dc" android:pathData="M161.37,135.36v-5.23H148.05v25.2h5.23V145.15h7.45v-5.23h-7.45v-4.56Z"/>
+    <path android:fillColor="#fff" android:pathData="M131.46,130.35h-8.15v0h0L123.31,133c0,0.61 0,7.56 0,9.68 0,2.72 0,9.8 0,9.8v2.61L126,155.09c0.17,0 4.11,0 5.69,0 6,-0.11 10.29,-5.29 10.29,-12.33 0,-7.41 -4.22,-12.38 -10.5,-12.38ZM131.58,149.83 L128.64,149.83 128.56,135.55h2.9c4.89,0 5.27,5.47 5.27,7.15C136.73,147.57 134.14,149.78 131.58,149.83Z"/>
+    <path android:fillColor="#eae1dc" android:pathData="M142,142.73c0,-7.41 -4.22,-12.38 -10.5,-12.38h-0.15v5.23h0.15c4.89,0 5.27,5.47 5.27,7.15 0,4.84 -2.59,7.05 -5.15,7.1h-0.27v5.23h0.36C137.63,155 142,149.77 142,142.73Z"/>
+    <path android:fillColor="#fff" android:pathData="M109.47,130.05h-8.22L101.25,155.4h5.23v-8.75h3a8.3,8.3 0,1 0,0 -16.59ZM109.47,141.41h-3c0,-1.14 0,-2.36 0,-3.08s0,-1.87 0,-3.06h3a3.07,3.07 0,1 1,0 6.13Z"/>
+</vector>

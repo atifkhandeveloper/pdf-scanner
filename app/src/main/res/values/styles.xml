@@ -1,0 +1,44 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="DialogTheme" parent="@android:style/Theme.Translucent.NoTitleBar" />
+
+    <!--<style name="AdAttributionadmob">
+        <item name="android:textSize">12.0dip</item>
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:gravity">center_horizontal|clip_horizontal</item>
+        <item name="android:layout_gravity">left|center_horizontal</item>
+        <item name="android:background">@drawable/ad_btn_install</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:text">AD</item>
+        <item name="android:paddingLeft">3dp</item>
+        <item name="android:paddingRight">3dp</item>
+        <item name="android:layout_margin">3dp</item>
+        <item name="elevation">2dp</item>
+    </style>-->
+
+    <style name="Theme.PDFScanner" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:statusBarColor">#fad3a5</item>
+        <item name="actionBarStyle">@style/ThemeOverlay.AppCompat.ActionBar</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorPrimary">#ffffff</item>
+        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorSecondaryVariant">@color/teal_700</item>
+    </style>
+
+    <style name="ShapeAppearanceOverlayAppCornerSize20Percent">
+        <item name="cornerSize">20%</item>
+    </style>
+
+
+</resources>

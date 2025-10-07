@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3f51b5</color>
+    <color name="colorPrimaryDark">#303f9f</color>
+    <color name="colorAccent">#ffffff</color>
+
+    <color name="primarymain">#ff59a9ff</color>
+    <color name="colorlight">#FFFFFF</color>
+
+    <color name="colorlightdark">#FFFFFF</color>
+
+    <color name="adstext">#000000</color>
+
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="blackads">#1a1a1a</color>
+    <color name="black1">#4c4c4c</color>
+
+
+
+    <color name="blue">#ff59a9ff</color>
+    <color name="codeGray">#e7e7e7</color>
+    <color name="divider">#333333</color>
+    <color name="gray">#808080</color>
+    <color name="orange">#ffff900d</color>
+    <color name="overlay">#aa1c1c1c</color>
+    <color name="pdfBlue">#ffffff</color>
+    <color name="polygonViewCircleBackground">#90e5f8ff</color>
+    <color name="polygonViewCircleStrokeColor">#ff59a9ff</color>
+    <color name="purple_200">#ffbb86fc</color>
+    <color name="purple_500">#ff6200ee</color>
+    <color name="purple_700">#ff3700b3</color>
+    <color name="red">#ffca0c0c</color>
+    <color name="teal_200">#3C88D9</color>
+    <color name="teal_700">#3C88D9</color>
+    <color name="transparent">#00000000</color>
+    <color name="windowBackground">#1c1c1c</color>
+
+
+</resources>
