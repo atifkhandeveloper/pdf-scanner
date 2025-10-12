@@ -13,6 +13,13 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!-- For Android 13 and above -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+
 
     <queries>
         <intent>
@@ -31,9 +38,9 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/scan"
+        android:icon="@drawable/icon"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/scan"
+        android:roundIcon="@drawable/icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.PDFScanner">
         <meta-data
@@ -56,6 +63,9 @@
 
         <activity
             android:name="com.myspps.pdfscanner.splashAds.FirstPageMainActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.myspps.pdfscanner.splashAds.OnBoardingActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name="com.myspps.pdfscanner.splashAds.AppThankYouActivity"
@@ -82,7 +92,11 @@
             android:exported="true" />
         <activity
             android:name="com.myspps.pdfscanner.activities.CropperActivity"
-            android:exported="true" />
+            android:windowTranslucentStatus="false"
+            android:windowTranslucentNavigation="false"
+            android:windowLayoutInDisplayCutoutMode="never"
+            android:resizeableActivity="false"
+            android:exported="true"/>
         <activity
             android:name="com.myspps.pdfscanner.activities.ImagePickerActivity"
             android:exported="true" />

@@ -13,14 +13,13 @@ import java.util.Date;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.WindowCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.multidex.MultiDex;
 
-import com.unity3d.ads.IUnityAdsInitializationListener;
-import com.unity3d.ads.UnityAds;
 
 public class MyApplication extends Application implements Application.ActivityLifecycleCallbacks, LifecycleObserver {
 
@@ -77,8 +76,7 @@ public class MyApplication extends Application implements Application.ActivityLi
     public static String MoreApps = "";
     public static String PrivacyPolicy = "";
 
-    private static final String UNITY_GAME_ID = "5937712"; // from Unity Dashboard
-    private static final boolean TEST_MODE = false;
+
 
 
     @Override
@@ -95,19 +93,9 @@ public class MyApplication extends Application implements Application.ActivityLi
 
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
 
-
-        UnityAds.initialize(this, UNITY_GAME_ID, TEST_MODE, new IUnityAdsInitializationListener() {
-            @Override
-            public void onInitializationComplete() {
-                Log.d("UnityAds", "Initialization complete.");
-            }
-
-            @Override
-            public void onInitializationFailed(UnityAds.UnityAdsInitializationError error, String message) {
-                Log.e("UnityAds", "Initialization failed: " + error + " - " + message);
-            }
-        });
-
+        WindowCompat.setDecorFitsSystemWindows(
+                ((Activity) getApplicationContext()).getWindow(), true
+        );
     }
 
     @Override

@@ -4,7 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#4a4e5c">
+    android:background="@color/white"
+    android:fitsSystemWindows="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_above="@+id/btm1"
@@ -15,7 +16,7 @@
             android:id="@+id/upperLayout"
             android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:background="#4a4e5c"
+            android:background="@color/white"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -27,7 +28,8 @@
                 android:src="@drawable/ic_flash_off"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/black" />
 
             <ImageView
                 android:id="@+id/backBtn"
@@ -37,7 +39,8 @@
                 android:src="@drawable/ic_cross"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/black" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.camera.view.PreviewView
@@ -61,7 +64,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/upperLayout"
-            app:layout_constraintWidth_percent="0.9" />
+            app:layout_constraintWidth_percent="0.9"
+            app:tint="@color/white" />
 
         <TextView
             android:id="@+id/tv_front_back"
@@ -80,7 +84,7 @@
             android:id="@+id/lowerLayout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:background="#4a4e5c"
+            android:background="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintHeight_percent="0.2"
             app:layout_constraintStart_toStartOf="parent">
@@ -94,7 +98,8 @@
                 android:src="@drawable/ic_circle"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/black" />
 
             <ProgressBar
                 android:id="@+id/progressBar"
@@ -126,7 +131,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/capture"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/black" />
 
             <ImageView
                 android:id="@+id/gallery_images"
@@ -136,7 +142,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/capture"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/black" />
 
             <TextView
                 android:id="@+id/tv_image_size"

@@ -17,6 +17,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.WindowCompat;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -56,6 +57,8 @@ public class FiltersActivity extends AppCompatActivity implements FilterClickInt
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView((int) R.layout.activity_filters);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
+
 
 
 

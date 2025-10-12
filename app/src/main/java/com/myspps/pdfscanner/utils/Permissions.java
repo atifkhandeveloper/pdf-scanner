@@ -1,64 +1,114 @@
 package com.myspps.pdfscanner.utils;
 
+import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
-import android.content.DialogInterface;
-import androidx.appcompat.app.AlertDialog;
+import android.content.pm.PackageManager;
+import android.os.Build;
+
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 public class Permissions {
-    public static final int CAMERA_PERMISSION_REQUEST_CODE = 1;
-    public static final int READ_PERMISSION_REQUEST_CODE = 2;
-    public static final int STORAGE_PERMISSION_REQUEST_CODE = 2;
 
-    public static void requestReadStoragePermission(final Context context) {
-        Activity activity = (Activity) context;
-        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, "android.permission.READ_EXTERNAL_STORAGE")) {
-            new AlertDialog.Builder(context).setTitle((CharSequence) "Permission needed").setMessage((CharSequence) "This permission is needed to get images").setPositiveButton((CharSequence) "OK", (DialogInterface.OnClickListener) new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    ActivityCompat.requestPermissions((Activity) context, new String[]{"android.permission.READ_EXTERNAL_STORAGE"}, 2);
-                }
-            }).setNegativeButton((CharSequence) "cancel", (DialogInterface.OnClickListener) new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    dialogInterface.dismiss();
-                }
-            }).create().show();
+    public static final int STORAGE_PERMISSION_CODE = 100;
+    public static final int CAMERA_PERMISSION_CODE = 101;
+
+    // 🧾 Request storage/media permissions for Activity
+    public static void requestMediaPermission(Activity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            String[] permissions = {
+                    Manifest.permission.READ_MEDIA_IMAGES,
+                    Manifest.permission.READ_MEDIA_VIDEO,
+                    Manifest.permission.READ_MEDIA_AUDIO
+            };
+            if (!hasAllPermissions(activity, permissions)) {
+                ActivityCompat.requestPermissions(activity, permissions, STORAGE_PERMISSION_CODE);
+            }
         } else {
-            ActivityCompat.requestPermissions(activity, new String[]{"android.permission.READ_EXTERNAL_STORAGE"}, 2);
+            requestReadStoragePermission(activity);
         }
     }
 
-    public static void writeStoragePermission(final Context context) {
-        Activity activity = (Activity) context;
-        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, "android.permission.WRITE_EXTERNAL_STORAGE")) {
-            new AlertDialog.Builder(context).setTitle((CharSequence) "Permission needed").setMessage((CharSequence) "This permission is needed to store files").setPositiveButton((CharSequence) "OK", (DialogInterface.OnClickListener) new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    ActivityCompat.requestPermissions((Activity) context, new String[]{"android.permission.WRITE_EXTERNAL_STORAGE"}, 2);
-                }
-            }).setNegativeButton((CharSequence) "cancel", (DialogInterface.OnClickListener) new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    dialogInterface.dismiss();
-                }
-            }).create().show();
+    // 🧾 Request storage/media permissions for Fragment
+    public static void requestMediaPermission(Fragment fragment) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            String[] permissions = {
+                    Manifest.permission.READ_MEDIA_IMAGES,
+                    Manifest.permission.READ_MEDIA_VIDEO,
+                    Manifest.permission.READ_MEDIA_AUDIO
+            };
+            if (!hasAllPermissions(fragment.getActivity(), permissions)) {
+                fragment.requestPermissions(permissions, STORAGE_PERMISSION_CODE);
+            }
         } else {
-            ActivityCompat.requestPermissions(activity, new String[]{"android.permission.WRITE_EXTERNAL_STORAGE"}, 2);
+            requestReadStoragePermission(fragment);
         }
     }
 
-    public static void requestCameraPermission(final Context context) {
-        Activity activity = (Activity) context;
-        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, "android.permission.CAMERA")) {
-            new AlertDialog.Builder(context).setTitle((CharSequence) "Permission needed").setMessage((CharSequence) "This permission is needed to capture images").setPositiveButton((CharSequence) "OK", (DialogInterface.OnClickListener) new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    ActivityCompat.requestPermissions((Activity) context, new String[]{"android.permission.CAMERA"}, 1);
-                }
-            }).setNegativeButton((CharSequence) "Cancel", (DialogInterface.OnClickListener) new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    dialogInterface.dismiss();
-                }
-            }).show();
-        } else {
-            ActivityCompat.requestPermissions(activity, new String[]{"android.permission.CAMERA"}, 1);
+    // 📂 Legacy storage permission (Activity)
+    public static void requestReadStoragePermission(Activity activity) {
+        String[] permissions = {
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+        };
+        if (!hasAllPermissions(activity, permissions)) {
+            ActivityCompat.requestPermissions(activity, permissions, STORAGE_PERMISSION_CODE);
         }
+    }
+
+    // 📂 Legacy storage permission (Fragment)
+    public static void requestReadStoragePermission(Fragment fragment) {
+        String[] permissions = {
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+        };
+        if (!hasAllPermissions(fragment.getActivity(), permissions)) {
+            fragment.requestPermissions(permissions, STORAGE_PERMISSION_CODE);
+        }
+    }
+
+    // 📷 Camera permission request (Activity)
+    public static void requestCameraPermission(Activity activity) {
+        if (!hasCameraPermission(activity)) {
+            ActivityCompat.requestPermissions(activity,
+                    new String[]{Manifest.permission.CAMERA},
+                    CAMERA_PERMISSION_CODE);
+        }
+    }
+
+    // 📷 Camera permission request (Fragment)
+    public static void requestCameraPermission(Fragment fragment) {
+        if (!hasCameraPermission(fragment.getActivity())) {
+            fragment.requestPermissions(new String[]{Manifest.permission.CAMERA},
+                    CAMERA_PERMISSION_CODE);
+        }
+    }
+
+    // ✅ Check storage permission (Activity)
+    public static boolean hasStoragePermission(Activity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_MEDIA_IMAGES)
+                    == PackageManager.PERMISSION_GRANTED;
+        } else {
+            return ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED;
+        }
+    }
+
+    // ✅ Check camera permission
+    public static boolean hasCameraPermission(Activity activity) {
+        return ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED;
+    }
+
+    // ✅ Helper: check multiple permissions
+    private static boolean hasAllPermissions(Activity activity, String[] permissions) {
+        for (String permission : permissions) {
+            if (ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
     }
 }

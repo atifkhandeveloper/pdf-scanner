@@ -1,5 +1,6 @@
 package com.myspps.pdfscanner.activities;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
@@ -7,6 +8,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -17,21 +19,24 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-//import androidx.appcompat.app.AlertDialog;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.WindowCompat;
 import androidx.loader.content.CursorLoader;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.myspps.pdfscanner.R;
 import com.myspps.pdfscanner.adapters.SaveFilesAdapter;
 import com.myspps.pdfscanner.model.FiltersAppliedModel;
 import com.myspps.pdfscanner.utils.Permissions;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -42,261 +47,252 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class SaveFilesActivity extends AppCompatActivity {
-    
-    public static ArrayList<FiltersAppliedModel> filteredImagesArray;
-    String File_Folder = "PDFScanner";
-    Context context = this;
-    ProgressDialog dialog;
-    PdfDocument document;
-    String exception;
-    String filePath;
-    boolean fileSaved = false;
-    boolean filenotSaved = false;
-    String nameOfFile;
-    OutputStream outputStream;
-    String pdfFilePath;
-    ProgressDialog progressDialog;
-    RecyclerView recyclerView;
-    String relativePath;
-    Button saveButton;
-    SaveFilesAdapter saveFilesAdapter;
-    Uri uri;
+
+    public static ArrayList<FiltersAppliedModel> filteredImagesArray = new ArrayList<>();
+
+    private final String FILE_FOLDER = "PDFScanner";
+    private Context context = this;
+    private RecyclerView recyclerView;
+    private Button saveButton;
+    private SaveFilesAdapter saveFilesAdapter;
+
+    private String filePath;
+    private String pdfFilePath;
+    private OutputStream outputStream;
 
     public static void startResultActivity(Context context2, ArrayList<FiltersAppliedModel> arrayList) {
         filteredImagesArray = arrayList;
         context2.startActivity(new Intent(context2, SaveFilesActivity.class));
     }
 
-    
-    public void onCreate(Bundle bundle) {
-        super.onCreate(bundle);
-        setContentView((int) R.layout.activity_save_files);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_save_files);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
 
+        getStoragePermission(); // ✅ Request storage access
 
+        // ✅ Prevent crash if no images were passed
+        if (filteredImagesArray == null || filteredImagesArray.isEmpty()) {
+            new AlertDialog.Builder(this)
+                    .setTitle("No Images Found")
+                    .setMessage("No filtered images were provided to create the PDF.")
+                    .setPositiveButton("OK", (dialog, which) -> finish())
+                    .show();
+            return;
+        }
 
+        recyclerView = findViewById(R.id.recycler_view);
+        saveButton = findViewById(R.id.save_file);
 
-        this.recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        this.saveButton = (Button) findViewById(R.id.save_file);
         setupRecyclerView();
-        this.saveButton.setOnClickListener(new View.OnClickListener() {
-            public final void onClick(View view) {
-                SaveFilesActivity.this.lambda$onCreate$0$SaveFilesActivity(view);
-            }
-        });
-    }
 
-    public  void lambda$onCreate$0$SaveFilesActivity(View view) {
-        new AlertDialog.Builder(this).setTitle((CharSequence) "Choose Quality").setSingleChoiceItems((int) R.array.choices, 0, (DialogInterface.OnClickListener) new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialogInterface, int i) {
-            }
-        }).setPositiveButton((CharSequence) "OK", (DialogInterface.OnClickListener) new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialogInterface, int i) {
-                int checkedItemPosition = ((AlertDialog) dialogInterface).getListView().getCheckedItemPosition();
-                if (checkedItemPosition == 0) {
-                    if (ContextCompat.checkSelfPermission(SaveFilesActivity.this.context, "android.permission.WRITE_EXTERNAL_STORAGE") == 0) {
-                        new CreatingPDF().execute(new String[0]);
-                    } else {
-                        Permissions.writeStoragePermission(SaveFilesActivity.this.context);
-                    }
-                } else if (checkedItemPosition != 1) {
-                } else {
-                     if (ContextCompat.checkSelfPermission(SaveFilesActivity.this.context, "android.permission.WRITE_EXTERNAL_STORAGE") == 0) {
-                        new CreatingPDF().execute(new String[0]);
-                    } else {
-                        Permissions.writeStoragePermission(SaveFilesActivity.this.context);
-                    }
-                }
-            }
-        }).setNegativeButton((CharSequence) "Cancel", (DialogInterface.OnClickListener) new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialogInterface, int i) {
-            }
-        }).show();
+        saveButton.setOnClickListener(view -> showQualityDialog());
     }
 
     private void setupRecyclerView() {
-        this.saveFilesAdapter = new SaveFilesAdapter(this, filteredImagesArray);
-        this.recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        this.recyclerView.setAdapter(this.saveFilesAdapter);
+        saveFilesAdapter = new SaveFilesAdapter(this, filteredImagesArray);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(saveFilesAdapter);
     }
 
-    
-    public void moveTasktoBack() {
-        startActivity(new Intent(this, MainActivity.class));
-        finish();
+    private void showQualityDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Choose Quality")
+                .setSingleChoiceItems(R.array.choices, 0, (dialog, which) -> {
+                })
+                .setPositiveButton("OK", (dialog, which) -> {
+                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            == PackageManager.PERMISSION_GRANTED || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        new CreatingPDF().execute();
+                    } else {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            Permissions.requestMediaPermission(this);
+                        } else {
+                            Permissions.requestReadStoragePermission(this);
+                        }
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
-    public void onBackPressed() {
-        new AlertDialog.Builder(this).setMessage((CharSequence) "Do you want to quit without saving").setPositiveButton((CharSequence) "I'm sure", (DialogInterface.OnClickListener) new DialogInterface.OnClickListener() {
-            public final void onClick(DialogInterface dialogInterface, int i) {
-                SaveFilesActivity.this.lambda$onBackPressed$1$SaveFilesActivity(dialogInterface, i);
-            }
-        }).setNegativeButton((CharSequence) "No", (DialogInterface.OnClickListener) $$Lambda$SaveFilesActivity$6Qhw90oZ9vcW2fZ6sIBkVY0tfFU.INSTANCE).show();
-    }
-
-    public  void lambda$onBackPressed$1$SaveFilesActivity(DialogInterface dialogInterface, int i) {
-        moveTasktoBack();
-        dialogInterface.dismiss();
-        super.onBackPressed();
-    }
-
-    
-    public void moveTasktoNext() {
+    private void moveTaskToNext() {
         Intent intent = new Intent(this, PDFActionsActivity.class);
         if (Build.VERSION.SDK_INT >= 29) {
-            String realPathFromURI = getRealPathFromURI(Uri.parse(this.filePath));
-            this.filePath = realPathFromURI;
+            String realPathFromURI = getRealPathFromURI(Uri.parse(filePath));
+            filePath = realPathFromURI;
             intent.putExtra("filePath", realPathFromURI);
-            Log.e("TAG", "Q PATH: " + this.filePath);
+            Log.e("TAG", "Q PATH: " + filePath);
         } else {
-            intent.putExtra("filePath", this.pdfFilePath);
-            Log.e("TAG", "O PATH: " + this.pdfFilePath);
+            intent.putExtra("filePath", pdfFilePath);
+            Log.e("TAG", "O PATH: " + pdfFilePath);
         }
         startActivity(intent);
     }
 
-    
-    public void saveFileInDirectory() throws IOException {
+    private void saveFileInDirectory() throws IOException {
         PdfDocument pdfDocument = new PdfDocument();
-        int i = 0;
-        while (i < filteredImagesArray.size()) {
-            int i2 = i + 1;
-            PdfDocument.Page startPage = pdfDocument.startPage(new PdfDocument.PageInfo.Builder(filteredImagesArray.get(i).getBitmap().getWidth(), filteredImagesArray.get(i).getBitmap().getHeight(), i2).create());
-            Canvas canvas = startPage.getCanvas();
+
+        for (int i = 0; i < filteredImagesArray.size(); i++) {
+            PdfDocument.Page page = pdfDocument.startPage(new PdfDocument.PageInfo.Builder(
+                    filteredImagesArray.get(i).getBitmap().getWidth(),
+                    filteredImagesArray.get(i).getBitmap().getHeight(),
+                    i + 1).create());
+
+            Canvas canvas = page.getCanvas();
             Paint paint = new Paint();
             paint.setColor(-1);
             canvas.drawPaint(paint);
-            canvas.drawBitmap(filteredImagesArray.get(i).getBitmap(), 0.0f, 0.0f, (Paint) null);
-            pdfDocument.finishPage(startPage);
-            i = i2;
+            canvas.drawBitmap(filteredImagesArray.get(i).getBitmap(), 0, 0, null);
+            pdfDocument.finishPage(page);
         }
-        this.nameOfFile = fileName();
+
+        String nameOfFile = fileName();
+
         if (Build.VERSION.SDK_INT >= 29) {
-            ContentResolver contentResolver = getContentResolver();
-            ContentValues contentValues = new ContentValues();
-            contentValues.put("_display_name", this.nameOfFile);
-            contentValues.put("mime_type", "application/pdf");
-            contentValues.put("relative_path", Environment.DIRECTORY_DOWNLOADS + File.separator + this.File_Folder);
-            Uri insert = contentResolver.insert(MediaStore.Files.getContentUri("external_primary"), contentValues);
-            Objects.requireNonNull(insert);
-            OutputStream openOutputStream = contentResolver.openOutputStream(insert);
-            this.outputStream = openOutputStream;
-            pdfDocument.writeTo(openOutputStream);
-            this.filePath = String.valueOf(insert);
-        } else {
-            File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), this.File_Folder);
-            if (!file.exists()) {
-                file.mkdirs();
-            } else {
-                this.pdfFilePath = file + "/" + fileName();
-                pdfDocument.writeTo(new FileOutputStream(this.pdfFilePath));
+            ContentResolver resolver = getContentResolver();
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.MediaColumns.DISPLAY_NAME, nameOfFile);
+            values.put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf");
+            values.put(MediaStore.MediaColumns.RELATIVE_PATH,
+                    Environment.DIRECTORY_DOWNLOADS + File.separator + FILE_FOLDER);
+
+            Uri uri = resolver.insert(MediaStore.Files.getContentUri("external_primary"), values);
+            if (uri != null) {
+                outputStream = resolver.openOutputStream(uri);
+                pdfDocument.writeTo(outputStream);
+                filePath = uri.toString();
             }
+        } else {
+            File folder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), FILE_FOLDER);
+            if (!folder.exists()) folder.mkdirs();
+
+            pdfFilePath = folder + "/" + nameOfFile;
+            pdfDocument.writeTo(new FileOutputStream(pdfFilePath));
         }
+
         pdfDocument.close();
     }
 
-    private String getRealPathFromURI(Uri uri2) {
-        Cursor loadInBackground = new CursorLoader(getApplicationContext(), uri2, new String[]{"_data"}, (String) null, (String[]) null, (String) null).loadInBackground();
-        int columnIndexOrThrow = loadInBackground.getColumnIndexOrThrow("_data");
-        loadInBackground.moveToFirst();
-        String string = loadInBackground.getString(columnIndexOrThrow);
-        loadInBackground.close();
-        return string;
-    }
-
     private String fileName() {
-        return "PDfScanner" + new SimpleDateFormat("-dd-MM-yy-HH-mm-ss-a", Locale.ENGLISH).format(Long.valueOf(System.currentTimeMillis())) + ".pdf";
+        return "PDFScanner" + new SimpleDateFormat("-dd-MM-yy-HH-mm-ss-a", Locale.ENGLISH)
+                .format(System.currentTimeMillis()) + ".pdf";
     }
 
-    public void onRequestPermissionsResult(int i, String[] strArr, int[] iArr) {
-        super.onRequestPermissionsResult(i, strArr, iArr);
-        if (i != 2) {
-            return;
-        }
-        if (iArr.length > 0 && iArr[0] == 0) {
-            new CreatingPDF().execute(new String[0]);
-        } else if (Build.VERSION.SDK_INT < 23) {
-        } else {
-            if (!shouldShowRequestPermissionRationale("android.permission.CAMERA")) {
-                new AlertDialog.Builder(this.context).setMessage("Permission Necessary").setPositiveButton("Settings", new DialogInterface.OnClickListener() {
-                    public final void onClick(DialogInterface dialogInterface, int i) {
-                        SaveFilesActivity.this.lambda$onRequestPermissionsResult$3$SaveFilesActivity(dialogInterface, i);
-                    }
-                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public final void onClick(DialogInterface dialogInterface, int i) {
-                        SaveFilesActivity.this.lambda$onRequestPermissionsResult$4$SaveFilesActivity(dialogInterface, i);
-                    }
-                }).show();
-            } else {
-                finish();
+    private String getRealPathFromURI(Uri uri) {
+        Cursor cursor = new CursorLoader(getApplicationContext(), uri, new String[]{"_data"}, null, null, null).loadInBackground();
+        if (cursor == null) return null;
+        int columnIndex = cursor.getColumnIndexOrThrow("_data");
+        cursor.moveToFirst();
+        String path = cursor.getString(columnIndex);
+        cursor.close();
+        return path;
+    }
+
+    // ✅ Updated for Android 6–15
+    private void getStoragePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!Environment.isExternalStorageManager()) {
+                try {
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                    intent.setData(Uri.parse("package:" + getPackageName()));
+                    startActivity(intent);
+                } catch (Exception e) {
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                    startActivity(intent);
+                }
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED ||
+                    checkSelfPermission(Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED ||
+                    checkSelfPermission(Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{
+                        Manifest.permission.READ_MEDIA_IMAGES,
+                        Manifest.permission.READ_MEDIA_VIDEO,
+                        Manifest.permission.READ_MEDIA_AUDIO
+                }, 200);
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                    checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                }, 201);
             }
         }
     }
 
-    public  void lambda$onRequestPermissionsResult$3$SaveFilesActivity(DialogInterface dialogInterface, int i) {
-        Intent intent = new Intent();
-        intent.setAction("android.settings.APPLICATION_DETAILS_SETTINGS");
-        intent.setData(Uri.parse("package:" + getPackageName()));
-        startActivityForResult(intent, 0);
-    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults.length > 0) {
+            boolean granted = true;
+            for (int res : grantResults) {
+                if (res != PackageManager.PERMISSION_GRANTED) {
+                    granted = false;
+                    break;
+                }
+            }
 
-    public  void lambda$onRequestPermissionsResult$4$SaveFilesActivity(DialogInterface dialogInterface, int i) {
-        finish();
+            if (!granted) {
+                new AlertDialog.Builder(this)
+                        .setTitle("Permission Denied")
+                        .setMessage("Storage access is required to save PDF files.")
+                        .setPositiveButton("Try Again", (dialog, which) -> getStoragePermission())
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            }
+        }
     }
 
     private class CreatingPDF extends AsyncTask<String, String, String> {
-        ProgressDialog dialog;
-        String exception;
-        boolean fileSaved;
-        boolean filenotSaved;
+        private ProgressDialog dialog;
+        private String exception;
+        private boolean fileSaved;
+        private boolean filenotSaved;
 
-        private CreatingPDF() {
-            this.fileSaved = false;
-            this.filenotSaved = false;
-        }
-
-        
-        public void onPreExecute() {
+        @Override
+        protected void onPreExecute() {
             super.onPreExecute();
-            ProgressDialog progressDialog = new ProgressDialog(SaveFilesActivity.this.context);
-            this.dialog = progressDialog;
-            progressDialog.setTitle("Please Wait");
-            this.dialog.setMessage("Creation of PDF. this may take a while");
-            this.dialog.setCancelable(false);
-            this.dialog.show();
+            dialog = new ProgressDialog(SaveFilesActivity.this.context);
+            dialog.setTitle("Please Wait");
+            dialog.setMessage("Creating PDF, this may take a while...");
+            dialog.setCancelable(false);
+            dialog.show();
         }
 
-        
-        public String doInBackground(String... strArr) {
+        @Override
+        protected String doInBackground(String... params) {
             try {
-                SaveFilesActivity.this.saveFileInDirectory();
-                this.fileSaved = true;
+                saveFileInDirectory();
+                fileSaved = true;
             } catch (IOException e) {
-                this.exception = e.getMessage();
-                this.filenotSaved = true;
+                exception = e.getMessage();
+                filenotSaved = true;
             }
-            SaveFilesActivity.filteredImagesArray.clear();
+            filteredImagesArray.clear();
             return null;
         }
 
-        
-        public void onPostExecute(String str) {
-            super.onPostExecute(str);
-            this.dialog.dismiss();
-            if (this.fileSaved) {
-                SaveFilesActivity.this.moveTasktoNext();
-            } else if (this.filenotSaved) {
-                new AlertDialog.Builder(SaveFilesActivity.this.context).setTitle((CharSequence) "Error Message").setMessage((CharSequence) this.exception).setNegativeButton((CharSequence) "Ok", (DialogInterface.OnClickListener) new DialogInterface.OnClickListener() {
-                    public final void onClick(DialogInterface dialogInterface, int i) {
-                        CreatingPDF.this.lambda$onPostExecute$0$SaveFilesActivity$CreatingPDF(dialogInterface, i);
-                    }
-                }).show();
-                Log.e("TAG", "onPostExecute: " + this.exception);
-            }
-        }
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            dialog.dismiss();
 
-        public  void lambda$onPostExecute$0$SaveFilesActivity$CreatingPDF(DialogInterface dialogInterface, int i) {
-            SaveFilesActivity.this.moveTasktoBack();
-            dialogInterface.dismiss();
+            if (fileSaved) {
+                moveTaskToNext();
+            } else if (filenotSaved) {
+                new AlertDialog.Builder(SaveFilesActivity.this.context)
+                        .setTitle("Error")
+                        .setMessage(exception != null ? exception : "Failed to create PDF.")
+                        .setNegativeButton("OK", (dialog, which) -> finish())
+                        .show();
+            }
         }
     }
 }

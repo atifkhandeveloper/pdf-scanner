@@ -13,6 +13,7 @@ import android.widget.RelativeLayout;
 import com.myspps.pdfscanner.R;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.WindowCompat;
 
 public class AppThankYouActivity extends AppCompatActivity {
 
@@ -21,6 +22,8 @@ public class AppThankYouActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_thankyou_app);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
+
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();
@@ -36,7 +39,7 @@ public class AppThankYouActivity extends AppCompatActivity {
         Exit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                finishAffinity();
             }
         });
         Rate.setOnClickListener(new View.OnClickListener() {

@@ -10,29 +10,35 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.view.WindowCompat;
 import androidx.fragment.app.Fragment;
 import com.myspps.pdfscanner.R;
 
 import com.myspps.pdfscanner.fragments.DocumentsFragment;
 import com.myspps.pdfscanner.fragments.HomeFragment;
+import com.myspps.pdfscanner.fragments.SettingsFragment;
+import com.myspps.pdfscanner.splashAds.AppThankYouActivity;
+import com.myspps.pdfscanner.splashAds.SplashActivity;
 import com.myspps.pdfscanner.utils.Permissions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.heinrichreimersoftware.materialdrawer.DrawerActivity;
 import com.heinrichreimersoftware.materialdrawer.structure.DrawerItem;
 import com.heinrichreimersoftware.materialdrawer.structure.DrawerProfile;
 import com.heinrichreimersoftware.materialdrawer.theme.DrawerTheme;
-import com.unity3d.ads.IUnityAdsLoadListener;
-import com.unity3d.ads.IUnityAdsShowListener;
-import com.unity3d.ads.UnityAds;
 
-public class MainActivity extends DrawerActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
+
+public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
     public static boolean b = true;
     public static Context contextOfApplication;
@@ -45,8 +51,7 @@ public class MainActivity extends DrawerActivity implements BottomNavigationView
     Button idPhotoButton;
     String packageName;
     String type;
-    private static final String INTERSTITIAL_ID = "Interstitial_Android";
-
+    private TextView tvTitle;
 
     public static Context getContextOfApplication() {
         return contextOfApplication;
@@ -55,14 +60,22 @@ public class MainActivity extends DrawerActivity implements BottomNavigationView
     
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+
         setContentView((int) R.layout.activity_main);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
 
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
+        tvTitle = findViewById(R.id.tvTitle);
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setOnNavigationItemSelectedListener(this);
 
-
+        // Load default fragment
+        loadFragment(new HomeFragment(), "Home");
 
         getPermission();
-        loadAd();
 
 
         this.packageName = getApplicationContext().getPackageName();
@@ -73,101 +86,15 @@ public class MainActivity extends DrawerActivity implements BottomNavigationView
         final String packageName2 = getPackageName();
         loadFragment(new HomeFragment());
         this.bottomNavigationView.setOnNavigationItemSelectedListener(this);
-        setDrawerTheme(new DrawerTheme((Context) this));
-        addProfile(new DrawerProfile().setRoundedAvatar((BitmapDrawable) getResources().getDrawable(R.drawable.logo_png)).setBackground(getResources().getDrawable(R.drawable.drawer_bg)).setName(getString(R.string.profile_name)).setDescription(getString(R.string.profile_description)).setOnProfileClickListener(new DrawerProfile.OnProfileClickListener() {
-            public void onClick(DrawerProfile drawerProfile, long j) {
-            }
-        }));
-        addItem(new DrawerItem().setImage(getResources().getDrawable(R.drawable.ic_docs)).setTextPrimary("Docs").setOnItemClickListener(new DrawerItem.OnItemClickListener() {
-            public void onClick(DrawerItem drawerItem, long j, int i) {
-                MainActivity.this.type = drawerItem.getTextPrimary().toString();
-                if (ActivityCompat.checkSelfPermission(MainActivity.this.getApplicationContext(), "android.permission.CAMERA") == 0) {
-                    MainActivity.this.goToCameraActivity();
-                    showAd();
-                } else {
-                    Permissions.requestCameraPermission(MainActivity.this.getApplicationContext());
-                }
-            }
-        }));
-        addItem(new DrawerItem().setImage(getResources().getDrawable(R.drawable.ic_id_card)).setTextPrimary("ID Card").setOnItemClickListener(new DrawerItem.OnItemClickListener() {
-            public void onClick(DrawerItem drawerItem, long j, int i) {
-                MainActivity.this.type = drawerItem.getTextPrimary().toString();
-                if (ActivityCompat.checkSelfPermission(MainActivity.this.getApplicationContext(), "android.permission.CAMERA") == 0) {
-
-                } else {
-                    Permissions.requestCameraPermission(MainActivity.this.getApplicationContext());
-                }
-            }
-        }));
-        addItem(new DrawerItem().setImage(getResources().getDrawable(R.drawable.ic_book)).setTextPrimary("Book").setOnItemClickListener(new DrawerItem.OnItemClickListener() {
-            public void onClick(DrawerItem drawerItem, long j, int i) {
-                MainActivity.this.type = drawerItem.getTextPrimary().toString();
-                if (ActivityCompat.checkSelfPermission(MainActivity.this.getApplicationContext(), "android.permission.CAMERA") == 0) {
-                    showAd();
-                } else {
-                    Permissions.requestCameraPermission(MainActivity.this.getApplicationContext());
-                }
-            }
-        }));
-        addItem(new DrawerItem().setImage(getResources().getDrawable(R.drawable.ic_id_photo)).setTextPrimary("ID Photo").setOnItemClickListener(new DrawerItem.OnItemClickListener() {
-            public void onClick(DrawerItem drawerItem, long j, int i) {
-                MainActivity.this.type = drawerItem.getTextPrimary().toString();
-                if (ActivityCompat.checkSelfPermission(MainActivity.this.getApplicationContext(), "android.permission.CAMERA") == 0) {
-                    showAd();
-                } else {
-                    Permissions.requestCameraPermission(MainActivity.this.getApplicationContext());
-                }
-            }
-        }));
-        addDivider();
-        addItem(new DrawerItem().setTextPrimary("Import from").setOnItemClickListener(new DrawerItem.OnItemClickListener() {
-            public void onClick(DrawerItem drawerItem, long j, int i) {
-            }
-        }));
-        addItem(new DrawerItem().setImage(getResources().getDrawable(R.drawable.ic_menu_gallery)).setTextPrimary("Gallery").setOnItemClickListener(new DrawerItem.OnItemClickListener() {
-            public void onClick(DrawerItem drawerItem, long j, int i) {
-                if (ActivityCompat.checkSelfPermission(MainActivity.this.getApplicationContext(), "android.permission.READ_EXTERNAL_STORAGE") == 0) {
-                    Intent intent = new Intent(MainActivity.this.getApplicationContext(), ImagePickerActivity.class);
-                    intent.putExtra("imageType", "Docs");
-                    startActivity(intent);
-                    return;
-                }
-                Permissions.requestReadStoragePermission(MainActivity.this.getApplicationContext());
-            }
-        }));
-        addItem(new DrawerItem().setImage(getResources().getDrawable(R.drawable.ic_menu_camera)).setTextPrimary("Camera").setOnItemClickListener(new DrawerItem.OnItemClickListener() {
-            public void onClick(DrawerItem drawerItem, long j, int i) {
-                MainActivity.this.type = "Docs";
-                if (ActivityCompat.checkSelfPermission(MainActivity.this.getApplicationContext(), "android.permission.CAMERA") == 0) {
-                  showAd();
-                } else {
-                    Permissions.requestCameraPermission(MainActivity.this.getApplicationContext());
-                }
-            }
-        }));
-        addDivider();
-        addItem(new DrawerItem().setImage(getResources().getDrawable(R.drawable.ic_homeeeeeeeeeeeeeeee)).setTextPrimary("Home").setOnItemClickListener(new DrawerItem.OnItemClickListener() {
-            public void onClick(DrawerItem drawerItem, long j, int i) {
-                MainActivity.this.closeDrawer();
-            }
-        }));
-        addItem(new DrawerItem().setImage(getResources().getDrawable(R.drawable.ic_rateee)).setTextPrimary("Rate us").setOnItemClickListener(new DrawerItem.OnItemClickListener() {
-            public void onClick(DrawerItem drawerItem, long j, int i) {
-                try {
-                    MainActivity mainActivity = MainActivity.this;
-                    mainActivity.startActivity(new Intent("android.intent.action.VIEW", Uri.parse("market://details?id=" + packageName2)));
-                } catch (ActivityNotFoundException unused) {
-                    MainActivity mainActivity2 = MainActivity.this;
-                    mainActivity2.startActivity(new Intent("android.intent.action.VIEW", Uri.parse("https://play.google.com/store/apps/details?id=" + packageName2)));
-                }
-            }
-        }));
+//        setDrawerTheme(new DrawerTheme((Context) this));
+//        addProfile(new DrawerProfile().setRoundedAvatar((BitmapDrawable) getResources().getDrawable(R.drawable.logo_png)).setBackground(getResources().getDrawable(R.drawable.drawer_bg)).setName(getString(R.string.profile_name)).setDescription(getString(R.string.profile_description)).setOnProfileClickListener(new DrawerProfile.OnProfileClickListener() {
+//            public void onClick(DrawerProfile drawerProfile, long j) {
+//            }
+//        }));
     }
-
     private Boolean getBoolFromPref(Context context2, String str, String str2) {
         return Boolean.valueOf(context2.getSharedPreferences(str, 0).getBoolean(str2, false));
     }
-
     private boolean loadFragment(Fragment fragment) {
         if (fragment == null) {
             return false;
@@ -175,23 +102,40 @@ public class MainActivity extends DrawerActivity implements BottomNavigationView
         getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, fragment).commit();
         return true;
     }
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        Fragment fragment = null;
+        String title = "";
 
-    public boolean onNavigationItemSelected(MenuItem menuItem) {
-        Fragment fragment;
-        int itemId = menuItem.getItemId();
-        if (itemId == R.id.documents) {
-            fragment = new DocumentsFragment();
-            loadFragment(fragment);
-        } else if (itemId != R.id.home) {
-            fragment = null;
-        } else {
+        int itemId = item.getItemId();
+
+        if (itemId == R.id.home) {
             fragment = new HomeFragment();
-            loadFragment(fragment);
+            title = "Home";
+        } else if (itemId == R.id.documents) {
+            fragment = new DocumentsFragment();
+            title = "Documents";
+        } else if (itemId == R.id.settings) {
+            fragment = new SettingsFragment();
+            title = "Settings";
         }
-        return loadFragment(fragment);
+
+        if (fragment != null) {
+            loadFragment(fragment, title);
+            return true;
+        }
+
+        return false;
     }
 
-    
+    private void loadFragment(Fragment fragment, String title) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.frameLayout, fragment)
+                .commit();
+        tvTitle.setText(title);
+    }
+
     public void goToCameraActivity() {
         Intent intent = new Intent(getApplicationContext(), CameraActivity.class);
         intent.putExtra("textFromButton", this.type);
@@ -200,69 +144,58 @@ public class MainActivity extends DrawerActivity implements BottomNavigationView
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        startActivity(new Intent(MainActivity.this, AppThankYouActivity.class));
         finish();
     }
 
     private void getPermission() {
 
-        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED ||
-                ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                        != PackageManager.PERMISSION_GRANTED) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(new String[]{
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.READ_EXTERNAL_STORAGE,
-                }, 0);
+        // Android 11+ (API 30+) - Check for Manage External Storage
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!Environment.isExternalStorageManager()) {
+                try {
+                    Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                    intent.setData(Uri.parse("package:" + getPackageName()));
+                    startActivity(intent);
+                } catch (Exception e) {
+                    // fallback if direct intent fails
+                    Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                    startActivity(intent);
+                }
+            }
+        }
+
+        // Android 13+ (API 33, 34, 35)
+        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED ||
+                    ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED ||
+                    ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{
+                                Manifest.permission.READ_MEDIA_IMAGES,
+                                Manifest.permission.READ_MEDIA_VIDEO,
+                                Manifest.permission.READ_MEDIA_AUDIO
+                        },
+                        100);
+            }
+        }
+
+        // Android 6–10 (API 23–29)
+        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                    ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{
+                                Manifest.permission.READ_EXTERNAL_STORAGE,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        },
+                        101);
             }
         }
     }
 
-    public void loadAd() {
-        UnityAds.load(INTERSTITIAL_ID, new IUnityAdsLoadListener() {
-            @Override
-            public void onUnityAdsAdLoaded(String placementId) {
-                Log.d("UnityAds", "Ad loaded: " + placementId);
-//                showAd(); // You can show right away or later
-            }
 
-            @Override
-            public void onUnityAdsFailedToLoad(String placementId, UnityAds.UnityAdsLoadError error, String message) {
-                Log.e("UnityAds", "Failed to load: " + placementId + " - " + error + " - " + message);
-            }
-        });
-    }
-
-    public void showAd() {
-        UnityAds.show(this, INTERSTITIAL_ID, new IUnityAdsShowListener() {
-            @Override
-            public void onUnityAdsShowStart(String placementId) {
-                Log.d("UnityAds", "Ad started: " + placementId);
-            }
-
-            @Override
-            public void onUnityAdsShowClick(String placementId) {
-                Log.d("UnityAds", "Ad clicked: " + placementId);
-            }
-
-            @Override
-            public void onUnityAdsShowComplete(String placementId, UnityAds.UnityAdsShowCompletionState state) {
-                Log.d("UnityAds", "Ad completed: " + placementId + " - " + state);
-                loadAd();
-                MainActivity.this.goToCameraActivity();
-
-
-            }
-
-            @Override
-            public void onUnityAdsShowFailure(String placementId, UnityAds.UnityAdsShowError error, String message) {
-                Log.e("UnityAds", "Ad failed: " + placementId + " - " + error + " - " + message);
-                loadAd();
-                MainActivity.this.goToCameraActivity();
-
-            }
-        });
-    }
 
 }

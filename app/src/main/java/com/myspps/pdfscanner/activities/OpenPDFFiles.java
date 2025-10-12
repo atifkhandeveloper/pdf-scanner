@@ -8,6 +8,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.WindowCompat;
+
 import com.myspps.pdfscanner.R;
 import com.myspps.pdfscanner.utils.CustomToast;
 import com.github.barteksc.pdfviewer.PDFView;
@@ -30,6 +32,8 @@ public class OpenPDFFiles extends AppCompatActivity {
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView((int) R.layout.activity_open_p_d_f_files);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
+
 
 
 

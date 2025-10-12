@@ -25,6 +25,7 @@ import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.WindowCompat;
 import androidx.lifecycle.LifecycleOwner;
 import com.myspps.pdfscanner.R;
 import com.myspps.pdfscanner.model.ImageModel;
@@ -73,6 +74,8 @@ public class CameraActivity extends AppCompatActivity {
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView((int) R.layout.activity_camera);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
+
 
 
 
@@ -221,7 +224,11 @@ public class CameraActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this.context, "android.permission.READ_EXTERNAL_STORAGE") == 0) {
             goToImagePickerActivity();
         } else {
-            Permissions.requestReadStoragePermission(this.context);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                Permissions.requestMediaPermission(this);
+            } else {
+                Permissions.requestReadStoragePermission(this);
+            }
         }
     }
 
@@ -234,7 +241,11 @@ public class CameraActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this.context, "android.permission.READ_EXTERNAL_STORAGE") == 0) {
             goToImagePickerActivity();
         } else {
-            Permissions.requestReadStoragePermission(this.context);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                Permissions.requestMediaPermission(this);
+            } else {
+                Permissions.requestReadStoragePermission(this);
+            }
         }
     }
 

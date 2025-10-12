@@ -13,6 +13,7 @@ android {
         targetSdk 36
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -29,6 +30,23 @@ android {
     }
     kotlinOptions {
         jvmTarget = '11'
+    }
+
+    // ✅ Only include the ABIs you need to reduce APK size
+    splits {
+        abi {
+            enable true
+            reset()
+            include "armeabi-v7a", "arm64-v8a" // common Android devices
+            universalApk false
+        }
+    }
+
+    packagingOptions {
+        exclude "lib/arm64-v8a/libmodft2.so"
+        exclude "lib/arm64-v8a/libmodpdfium.so"
+        exclude "lib/arm64-v8a/libmodpng.so"
+        exclude "lib/arm64-v8a/libpl_droidsonroids_gif.so"
     }
 }
 
@@ -65,7 +83,7 @@ dependencies {
 
     implementation 'org.jsoup:jsoup:1.13.1'
 
-    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.23'
+//    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.23'
 
     def lifecycle_version = "2.0.0"
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
@@ -83,7 +101,11 @@ dependencies {
     implementation 'com.github.yalantis:ucrop:2.2.6'
     implementation 'com.heinrichreimersoftware:material-drawer:2.3.3'
     //implementation 'com.github.barteksc:android-pdf-viewer:2.8.2'
-    implementation "com.github.mhiew:android-pdf-viewer:3.2.0-beta.1"
-    implementation("com.unity3d.ads:unity-ads:4.12.0")
+    implementation ("com.github.mhiew:android-pdf-viewer:3.2.0-beta.1") {
+        exclude group: 'com.github.barteksc', module: 'android-pdf-viewer-native'
+    }
+//    implementation("com.github.adnanamin69:Ads-Sdk:1.9")
+    implementation 'com.google.guava:guava:33.0.0-android'
+
 
 }

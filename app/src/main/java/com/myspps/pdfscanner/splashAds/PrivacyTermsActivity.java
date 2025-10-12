@@ -8,6 +8,7 @@ import android.widget.CheckBox;
 import android.widget.Toast;
 
 import com.myspps.pdfscanner.R;
+import com.myspps.pdfscanner.activities.MainActivity;
 import com.myspps.pdfscanner.ads.MyApplication;
 
 import androidx.annotation.Nullable;
@@ -39,7 +40,8 @@ public class PrivacyTermsActivity extends AppCompatActivity {
                     return;
                 } else {
                     //startActivity(new Intent(activity, PermissionPageActivity.class));
-                    startActivity(new Intent(activity, FirstPageMainActivity.class));
+                    startActivity(new Intent(activity, MainActivity.class));
+                    finish();
                 }
             }
         });

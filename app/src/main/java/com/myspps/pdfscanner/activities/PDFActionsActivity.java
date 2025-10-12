@@ -16,6 +16,8 @@ import android.widget.RelativeLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.content.FileProvider;
+import androidx.core.view.WindowCompat;
+
 import com.myspps.pdfscanner.R;
 
 import com.myspps.pdfscanner.utils.CustomToast;
@@ -39,6 +41,8 @@ public class PDFActionsActivity extends AppCompatActivity {
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView((int) R.layout.activity_p_d_f_actions);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
+
 
 
 

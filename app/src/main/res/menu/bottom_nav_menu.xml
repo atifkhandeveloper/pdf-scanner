@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:aapt="http://schemas.android.com/aapt">
-    <item android:icon="@drawable/ic_homeeeeeeeeeeeeeeee" android:id="@+id/home" android:title="Home"/>
-    <item android:icon="@drawable/ic_pdffffff" android:id="@+id/documents" android:title="Documents"/>
+    <item android:icon="@drawable/home" android:id="@+id/home" android:title="Home" android:iconTint="@color/black"/>
+    <item android:icon="@drawable/docs" android:id="@+id/documents" android:title="Documents" android:iconTint="@color/black"/>
+    <item android:icon="@drawable/settings" android:id="@+id/settings" android:title="Settings" android:iconTint="@color/black"/>
 </menu>

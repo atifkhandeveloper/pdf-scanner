@@ -15,6 +15,7 @@ import android.widget.RelativeLayout;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.WindowCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.myspps.pdfscanner.R;
@@ -39,6 +40,8 @@ public class ImagePickerActivity extends AppCompatActivity implements ItemClickI
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView((int) R.layout.activity_image_picker);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
+
 
 
         this.recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
