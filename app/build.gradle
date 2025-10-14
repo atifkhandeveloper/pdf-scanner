@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.myspps.pdfscanner"
-        minSdk 24
+        minSdk 26
         targetSdk 36
         versionCode 1
         versionName "1.0"
@@ -101,11 +101,18 @@ dependencies {
     implementation 'com.github.yalantis:ucrop:2.2.6'
     implementation 'com.heinrichreimersoftware:material-drawer:2.3.3'
     //implementation 'com.github.barteksc:android-pdf-viewer:2.8.2'
-    implementation ("com.github.mhiew:android-pdf-viewer:3.2.0-beta.1") {
-        exclude group: 'com.github.barteksc', module: 'android-pdf-viewer-native'
-    }
-//    implementation("com.github.adnanamin69:Ads-Sdk:1.9")
+//    implementation ("com.github.mhiew:android-pdf-viewer:3.2.0-beta.1") {
+//        exclude group: 'com.github.barteksc', module: 'android-pdf-viewer-native'
+//    }
+//    implementation 'com.github.mhiew:android-pdf-viewer:3.2.0-beta.3'
+
+    implementation("com.google.android.gms:play-services-ads:24.7.0")
     implementation 'com.google.guava:guava:33.0.0-android'
+
+    implementation 'com.tom-roush:pdfbox-android:2.0.26.0'
+    implementation 'org.apache.poi:poi-ooxml:5.4.1'
+    implementation project(':nativetemplates')
+
 
 
 }

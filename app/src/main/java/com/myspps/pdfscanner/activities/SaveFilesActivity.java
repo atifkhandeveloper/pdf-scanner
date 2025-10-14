@@ -1,6 +1,9 @@
 package com.myspps.pdfscanner.activities;
 
+import static android.content.ContentValues.TAG;
+
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
@@ -32,9 +35,16 @@ import androidx.loader.content.CursorLoader;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.myspps.pdfscanner.R;
 import com.myspps.pdfscanner.adapters.SaveFilesAdapter;
 import com.myspps.pdfscanner.model.FiltersAppliedModel;
+import com.myspps.pdfscanner.splashAds.PrivacyTermsActivity;
 import com.myspps.pdfscanner.utils.Permissions;
 
 import java.io.File;
@@ -60,6 +70,10 @@ public class SaveFilesActivity extends AppCompatActivity {
     private String pdfFilePath;
     private OutputStream outputStream;
 
+    private InterstitialAd interstitialAd;
+    private boolean adIsLoading;
+    Activity activity;
+
     public static void startResultActivity(Context context2, ArrayList<FiltersAppliedModel> arrayList) {
         filteredImagesArray = arrayList;
         context2.startActivity(new Intent(context2, SaveFilesActivity.class));
@@ -73,6 +87,7 @@ public class SaveFilesActivity extends AppCompatActivity {
 
         getStoragePermission(); // ✅ Request storage access
 
+        loadAd();
         // ✅ Prevent crash if no images were passed
         if (filteredImagesArray == null || filteredImagesArray.isEmpty()) {
             new AlertDialog.Builder(this)
@@ -285,7 +300,7 @@ public class SaveFilesActivity extends AppCompatActivity {
             dialog.dismiss();
 
             if (fileSaved) {
-                moveTaskToNext();
+                showInterstitial();
             } else if (filenotSaved) {
                 new AlertDialog.Builder(SaveFilesActivity.this.context)
                         .setTitle("Error")
@@ -294,5 +309,103 @@ public class SaveFilesActivity extends AppCompatActivity {
                         .show();
             }
         }
+    }
+
+    public void loadAd() {
+        // Request a new ad if one isn't already loaded.
+        if (adIsLoading || interstitialAd != null) {
+            return;
+        }
+        adIsLoading = true;
+        // [START load_ad]
+        InterstitialAd.load(
+                this,
+                getResources().getString(R.string.inter),
+                new AdRequest.Builder().build(),
+                new InterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                        Log.d(TAG, "Ad was loaded.");
+                        SaveFilesActivity.this.interstitialAd = interstitialAd;
+                        // [START_EXCLUDE silent]
+                        adIsLoading = false;
+                        // [START set_fullscreen_callback]
+                        interstitialAd.setFullScreenContentCallback(
+                                new FullScreenContentCallback() {
+                                    @Override
+                                    public void onAdDismissedFullScreenContent() {
+                                        // Called when fullscreen content is dismissed.
+                                        Log.d(TAG, "The ad was dismissed.");
+                                        // Make sure to set your reference to null so you don't
+                                        // show it a second time.
+                                        SaveFilesActivity.this.interstitialAd = null;
+                                        moveTaskToNext();
+                                    }
+
+                                    @Override
+                                    public void onAdFailedToShowFullScreenContent(AdError adError) {
+                                        // Called when fullscreen content failed to show.
+                                        Log.d(TAG, "The ad failed to show.");
+                                        // Make sure to set your reference to null so you don't
+                                        // show it a second time.
+                                        SaveFilesActivity.this.interstitialAd = null;
+                                    }
+
+                                    @Override
+                                    public void onAdShowedFullScreenContent() {
+                                        // Called when fullscreen content is shown.
+                                        Log.d(TAG, "The ad was shown.");
+                                    }
+
+                                    @Override
+                                    public void onAdImpression() {
+                                        // Called when an impression is recorded for an ad.
+                                        Log.d(TAG, "The ad recorded an impression.");
+                                    }
+
+                                    @Override
+                                    public void onAdClicked() {
+                                        // Called when ad is clicked.
+                                        Log.d(TAG, "The ad was clicked.");
+                                    }
+                                });
+                        // [END set_fullscreen_callback]
+                        // [END_EXCLUDE]
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        Log.d(TAG, loadAdError.getMessage());
+                        interstitialAd = null;
+                        // [START_EXCLUDE silent]
+                        adIsLoading = false;
+                        String error =
+                                String.format(
+                                        java.util.Locale.US,
+                                        "domain: %s, code: %d, message: %s",
+                                        loadAdError.getDomain(),
+                                        loadAdError.getCode(),
+                                        loadAdError.getMessage());
+                        moveTaskToNext();
+
+                    }
+                    // [END_EXCLUDE]
+                });
+        // [END load_ad]
+    }
+
+    private void showInterstitial() {
+        // Show the ad if it's ready. Otherwise restart the game.
+        // [START show_ad]
+        if (interstitialAd != null) {
+            interstitialAd.show(this);
+        } else {
+            Log.d(TAG, "The interstitial ad is still loading.");
+            // [START_EXCLUDE silent]
+            moveTaskToNext();
+            loadAd();
+            // [END_EXCLUDE]
+        }
+        // [END show_ad]
     }
 }

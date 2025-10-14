@@ -1,26 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:background="#FFFFFF"
+    android:padding="8dp">
 
-    <com.github.barteksc.pdfviewer.PDFView
-        android:id="@+id/pdfViewer"
-        android:layout_above="@+id/btm1"
+    <ImageView
+        android:id="@+id/pdfImageView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="@dimen/_5sdp" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#EEEEEE"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true" />
 
     <RelativeLayout
-        android:id="@+id/btm1"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:gravity="center"
-        android:layout_alignParentBottom="true">
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:padding="8dp">
 
+        <ImageView
+            android:id="@+id/btnPrev"
+            android:src="@drawable/back_btn"
+            android:layout_width="30dp"
+            android:layout_alignParentLeft="true"
+            android:layout_height="30dp" />
 
+        <ImageView
+            android:id="@+id/btnNext"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginStart="16dp"
+            android:src="@drawable/next_btn" />
     </RelativeLayout>
-
-</RelativeLayout>
+</LinearLayout>

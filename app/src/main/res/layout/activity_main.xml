@@ -53,12 +53,22 @@
             android:background="@drawable/bg_bottom_native"
             android:elevation="8dp"
             android:padding="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/ad_view_container"
             app:menu="@menu/bottom_nav_menu"
             app:itemIconTint="@color/black"
             app:itemTextColor="@color/black"
             app:labelVisibilityMode="labeled" />
+        <FrameLayout
+            android:id="@+id/ad_view_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_alignParentBottom="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+
+            />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 </RelativeLayout>

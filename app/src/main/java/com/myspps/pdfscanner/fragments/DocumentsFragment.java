@@ -1,10 +1,9 @@
 package com.myspps.pdfscanner.fragments;
 
-
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
-import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -20,7 +19,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatButton;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -35,8 +33,6 @@ import com.myspps.pdfscanner.utils.CustomToast;
 import com.myspps.pdfscanner.utils.Permissions;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLConnection;
@@ -61,80 +57,65 @@ public class DocumentsFragment extends Fragment implements FilesClickInterface {
         ivNodata = view.findViewById(R.id.nodata);
 
         progressDialog = new ProgressDialog(requireContext());
-        progressDialog.setMessage("Loading PDFs...");
+        progressDialog.setMessage("Loading Documents...");
         progressDialog.setCancelable(false);
 
-        // ✅ Request proper permissions for Android 14–15
+        // ✅ Request proper permissions for Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             Permissions.requestMediaPermission(requireActivity());
         } else {
             Permissions.requestReadStoragePermission(requireActivity());
         }
 
-        loadPDFs();
+        loadDocuments();
         return view;
     }
 
-    // 🧭 Load PDFs with Progress
-    private void loadPDFs() {
+    // 🧭 Load Documents with Progress
+    private void loadDocuments() {
         progressDialog.show();
         new Thread(() -> {
-            ArrayList<ViewFilesModel> pdfList = getPDF();
+            ArrayList<ViewFilesModel> docsList = getDocuments();
 
             requireActivity().runOnUiThread(() -> {
                 progressDialog.dismiss();
-                if (pdfList == null || pdfList.isEmpty()) {
+                if (docsList == null || docsList.isEmpty()) {
                     ivNodata.setVisibility(View.VISIBLE);
                 } else {
                     ivNodata.setVisibility(View.GONE);
                 }
-                setUpRecyclerView(pdfList);
+                setUpRecyclerView(docsList);
             });
         }).start();
     }
 
-    // 🗂️ Get PDF Files from Scoped Storage
-    private ArrayList<ViewFilesModel> getPDF() {
+    // 🗂️ Get PDF and DOC/DOCX Files
+    private ArrayList<ViewFilesModel> getDocuments() {
         viewFilesArray.clear();
 
+        File folder;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            // Scoped storage - use Downloads/PDFScanner folder
-            File folder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "PDFScanner");
-
-            if (folder.exists() && folder.isDirectory()) {
-                File[] files = folder.listFiles();
-                if (files != null && files.length > 0) {
-                    for (int i = files.length - 1; i >= 0; i--) {
-                        File file = files[i];
-                        if (file.getName().endsWith(".pdf")) {
-                            long lastModified = file.lastModified();
-                            viewFilesArray.add(new ViewFilesModel(
-                                    String.valueOf(Uri.fromFile(file)),
-                                    file.getName(),
-                                    String.format("%.2f MB", (file.length() / 1024f / 1024f)),
-                                    getDate(lastModified, "dd/MM/yyyy")
-                            ));
-                        }
-                    }
-                }
-            }
+            folder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "PDFScanner");
         } else {
-            // Legacy storage path
-            File folder = new File(Environment.getExternalStorageDirectory(), "Documents/PDFScanner");
-            if (folder.exists() && folder.isDirectory()) {
-                File[] files = folder.listFiles();
-                if (files != null && files.length > 0) {
-                    for (int i = files.length - 1; i >= 0; i--) {
-                        File file = files[i];
-                        if (file.getName().endsWith(".pdf")) {
-                            long lastModified = file.lastModified();
-                            viewFilesArray.add(new ViewFilesModel(
-                                    String.valueOf(Uri.fromFile(file)),
-                                    file.getName(),
-                                    String.format("%.2f MB", (file.length() / 1024f / 1024f)),
-                                    getDate(lastModified, "dd/MM/yyyy")
-                            ));
-                        }
+            folder = new File(Environment.getExternalStorageDirectory(), "Documents/PDFScanner");
+        }
+
+        if (folder.exists() && folder.isDirectory()) {
+            File[] files = folder.listFiles();
+            if (files != null && files.length > 0) {
+                for (int i = files.length - 1; i >= 0; i--) {
+                    File file = files[i];
+                    String name = file.getName().toLowerCase();
+
+                    // ✅ Support PDF, DOC, DOCX
+                    if (name.endsWith(".pdf") || name.endsWith(".doc") || name.endsWith(".docx")) {
+                        long lastModified = file.lastModified();
+                        viewFilesArray.add(new ViewFilesModel(
+                                String.valueOf(Uri.fromFile(file)),
+                                file.getName(),
+                                String.format("%.2f MB", (file.length() / 1024f / 1024f)),
+                                getDate(lastModified, "dd/MM/yyyy")
+                        ));
                     }
                 }
             }
@@ -150,13 +131,13 @@ public class DocumentsFragment extends Fragment implements FilesClickInterface {
         return sdf.format(cal.getTime());
     }
 
-    private void setUpRecyclerView(ArrayList<ViewFilesModel> pdfList) {
-        filesAdapter = new ViewFilesAdapter(requireContext(), pdfList, this);
+    private void setUpRecyclerView(ArrayList<ViewFilesModel> docsList) {
+        filesAdapter = new ViewFilesAdapter(requireContext(), docsList, this);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(filesAdapter);
     }
 
-    // 📄 Open PDF
+    // 📄 Open PDF or DOC/DOCX
     @Override
     public void onItemClick(int position) {
         if (viewFilesArray == null || position >= viewFilesArray.size()) return;
@@ -170,14 +151,31 @@ public class DocumentsFragment extends Fragment implements FilesClickInterface {
                     + "/Documents/PDFScanner/" + viewFilesArray.get(position).getName());
         }
 
-        if (file.exists()) {
-            Uri uri = FileProvider.getUriForFile(requireContext(),
-                    requireActivity().getPackageName() + ".provider", file);
+        if (!file.exists()) {
+            Toast.makeText(requireContext(), "File not found", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Uri uri = FileProvider.getUriForFile(requireContext(),
+                requireActivity().getPackageName() + ".provider", file);
+
+        String name = file.getName().toLowerCase();
+
+        if (name.endsWith(".pdf")) {
+            // Open in internal PDF viewer
             Intent intent = new Intent(requireActivity(), OpenPDFFiles.class);
             intent.putExtra("pdfPath", uri.toString());
             startActivity(intent);
-        } else {
-            Toast.makeText(requireContext(), "File not found", Toast.LENGTH_SHORT).show();
+        } else if (name.endsWith(".doc") || name.endsWith(".docx")) {
+            // Open DOC/DOCX in external app
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(uri, "application/msword");
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            try {
+                startActivity(intent);
+            } catch (Exception e) {
+                Toast.makeText(requireContext(), "No app found to open this file", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -203,7 +201,7 @@ public class DocumentsFragment extends Fragment implements FilesClickInterface {
                     if (fDelete.exists() && fDelete.delete()) {
                         deleteFileFromMediaStore(requireActivity().getContentResolver(), fDelete);
                         Toast.makeText(requireContext(), "Deleted", Toast.LENGTH_SHORT).show();
-                        loadPDFs();
+                        loadDocuments();
                     } else {
                         Toast.makeText(requireContext(), "Not deleted", Toast.LENGTH_SHORT).show();
                     }
@@ -271,7 +269,7 @@ public class DocumentsFragment extends Fragment implements FilesClickInterface {
 
         if (oldFile.renameTo(newFile)) {
             new CustomToast(requireContext(), "File renamed");
-            loadPDFs();
+            loadDocuments();
         } else {
             new CustomToast(requireContext(), "Rename failed");
         }
@@ -298,9 +296,12 @@ public class DocumentsFragment extends Fragment implements FilesClickInterface {
 
         Uri uri = FileProvider.getUriForFile(requireContext(),
                 requireActivity().getPackageName() + ".provider", file);
+
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType(URLConnection.guessContentTypeFromName(file.getName()));
         intent.putExtra(Intent.EXTRA_STREAM, uri);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
         startActivity(Intent.createChooser(intent, "Share File"));
     }
 }

@@ -13,7 +13,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -23,6 +25,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.WindowCompat;
 import androidx.fragment.app.Fragment;
+
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
 import com.myspps.pdfscanner.R;
 
 import com.myspps.pdfscanner.fragments.DocumentsFragment;
@@ -36,6 +44,8 @@ import com.heinrichreimersoftware.materialdrawer.DrawerActivity;
 import com.heinrichreimersoftware.materialdrawer.structure.DrawerItem;
 import com.heinrichreimersoftware.materialdrawer.structure.DrawerProfile;
 import com.heinrichreimersoftware.materialdrawer.theme.DrawerTheme;
+
+import java.util.Arrays;
 
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
@@ -52,6 +62,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     String packageName;
     String type;
     private TextView tvTitle;
+    private AdView adView;
+    private FrameLayout adContainerView;
+    LinearLayout adLayout;
 
     public static Context getContextOfApplication() {
         return contextOfApplication;
@@ -64,7 +77,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         setContentView((int) R.layout.activity_main);
         WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
 
-
+        adLayout = findViewById(R.id.banner_ad_layout);
+        adContainerView = findViewById(R.id.ad_view_container);
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
@@ -76,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         loadFragment(new HomeFragment(), "Home");
 
         getPermission();
+        initializeMobileAdsSdk();
 
 
         this.packageName = getApplicationContext().getPackageName();
@@ -197,5 +212,47 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     }
 
 
+    private void loadBanner() {
+        // [START create_ad_view]
+        // Create a new ad view.
+        adView = new AdView(this);
+        adView.setAdUnitId(getResources().getString(R.string.banner));
+        // [START set_ad_size]
+        // Request an anchored adaptive banner with a width of 360.
+        adView.setAdSize(AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, 360));
+        // [END set_ad_size]
+
+        // Replace ad container with new ad view.
+        adContainerView.removeAllViews();
+        adContainerView.addView(adView);
+        // [END create_ad_view]
+
+        // [START load_ad]
+        AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
+//        adLayout.setVisibility(View.VISIBLE);
+        // [END load_ad]
+    }
+
+    private void initializeMobileAdsSdk() {
+        // Set your test devices.
+        MobileAds.setRequestConfiguration(
+                new RequestConfiguration.Builder()
+//                        .setTestDeviceIds(Arrays.asList(TEST_DEVICE_HASHED_ID))
+                        .build());
+
+        // [START initialize_sdk]
+        new Thread(
+                () -> {
+                    // Initialize the Google Mobile Ads SDK on a background thread.
+                    MobileAds.initialize(this, initializationStatus -> {});
+                    // [START_EXCLUDE silent]
+                    // Load an ad on the main thread.
+                    runOnUiThread(this::loadBanner);
+                    // [END_EXCLUDE]
+                })
+                .start();
+        // [END initialize_sdk]
+    }
 
 }

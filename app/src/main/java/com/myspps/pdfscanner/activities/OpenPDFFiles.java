@@ -1,131 +1,139 @@
 package com.myspps.pdfscanner.activities;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.util.Log;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
+import android.widget.Button;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowCompat;
 
 import com.myspps.pdfscanner.R;
 import com.myspps.pdfscanner.utils.CustomToast;
-import com.github.barteksc.pdfviewer.PDFView;
-import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
-import com.github.barteksc.pdfviewer.listener.OnPageChangeListener;
-import com.github.barteksc.pdfviewer.listener.OnPageErrorListener;
-import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle;
-import com.shockwave.pdfium.PdfDocument;
+
 import java.io.File;
-import java.util.List;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class OpenPDFFiles extends AppCompatActivity {
 
-    Context context = this;
-    String isNew = null;
-    int pageNumber = 1;
-    PDFView pdfView;
+    private Context context = this;
+    private PdfRenderer pdfRenderer;
+    private PdfRenderer.Page currentPage;
+    private ParcelFileDescriptor parcelFileDescriptor;
 
-    
-    public void onCreate(Bundle bundle) {
-        super.onCreate(bundle);
-        setContentView((int) R.layout.activity_open_p_d_f_files);
+    private ImageView pdfImageView;
+    private ImageView btnPrev, btnNext;
+    private int currentPageIndex = 0;
+    private int totalPages = 0;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_open_p_d_f_files);
         WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
 
+        pdfImageView = findViewById(R.id.pdfImageView);
+        btnPrev = findViewById(R.id.btnPrev);
+        btnNext = findViewById(R.id.btnNext);
 
+        String pdfPath = getIntent().getStringExtra("pdfPath");
+        String isNew = getIntent().getStringExtra("newPdf");
 
+        Log.e("OpenPDF", "Received Path: " + pdfPath);
 
-
-        String stringExtra = getIntent().getStringExtra("pdfPath");
-        this.isNew = getIntent().getStringExtra("newPdf");
-        Log.e("TAG", "onCreate: " + stringExtra);
-        this.pdfView = (PDFView) findViewById(R.id.pdfViewer);
-        String name = new File(stringExtra).getName();
-        int lastIndexOf = name.lastIndexOf(".");
-        if (lastIndexOf > 0 && lastIndexOf < name.length() - 1) {
-            name = name.substring(0, lastIndexOf);
+        if (pdfPath == null || pdfPath.isEmpty()) {
+            new CustomToast(this, "No PDF path provided");
+            finish();
+            return;
         }
-        if (this.isNew == null) {
-            String finalName = name;
-            this.pdfView.fromUri(Uri.parse(stringExtra)).defaultPage(0).enableSwipe(true).autoSpacing(true).swipeHorizontal(false).onPageChange(new OnPageChangeListener() {
-                public final  String f$1;
 
-                {
-                    this.f$1 = finalName;
-                }
+        try {
+            File file;
 
-                public final void onPageChanged(int i, int i2) {
-                    OpenPDFFiles.this.lambda$onCreate$0$OpenPDFFiles(this.f$1, i, i2);
-                }
-            }).onPageError(new OnPageErrorListener() {
-                public final void onPageError(int i, Throwable th) {
-                    OpenPDFFiles.this.lambda$onCreate$1$OpenPDFFiles(i, th);
-                }
-            }).enableAnnotationRendering(true).onLoad(new OnLoadCompleteListener() {
-                public final void loadComplete(int i) {
-                    OpenPDFFiles.this.lambda$onCreate$2$OpenPDFFiles(i);
-                }
-            }).scrollHandle(new DefaultScrollHandle(this)).spacing(20).enableDoubletap(true).load();
-        } else {
-            String finalName1 = name;
-            this.pdfView.fromUri(Uri.fromFile(new File(stringExtra))).defaultPage(0).enableSwipe(true).autoSpacing(true).swipeHorizontal(false).onPageChange(new OnPageChangeListener() {
-                public final  String f$1;
+            // Handle both file:// and content:// URIs properly
+            if (pdfPath.startsWith("content://")) {
+                Uri uri = Uri.parse(pdfPath);
+                parcelFileDescriptor = getContentResolver().openFileDescriptor(uri, "r");
+            } else {
+                if (isNew == null)
+                    file = new File(Uri.parse(pdfPath).getPath());
+                else
+                    file = new File(pdfPath);
 
-                {
-                    this.f$1 = finalName1;
-                }
-
-                public final void onPageChanged(int i, int i2) {
-                    OpenPDFFiles.this.lambda$onCreate$3$OpenPDFFiles(this.f$1, i, i2);
-                }
-            }).onPageError(new OnPageErrorListener() {
-                public final void onPageError(int i, Throwable th) {
-                    OpenPDFFiles.this.lambda$onCreate$4$OpenPDFFiles(i, th);
-                }
-            }).enableAnnotationRendering(true).onLoad(new OnLoadCompleteListener() {
-                public final void loadComplete(int i) {
-                    OpenPDFFiles.this.lambda$onCreate$5$OpenPDFFiles(i);
-                }
-            }).scrollHandle(new DefaultScrollHandle(this)).spacing(20).enableDoubletap(true).load();
-        }
-    }
-
-    public  void lambda$onCreate$0$OpenPDFFiles(String str, int i, int i2) {
-        this.pageNumber = i;
-        setTitle(String.format("%s %s /%s", new Object[]{str, Integer.valueOf(i + 1), Integer.valueOf(i2)}));
-    }
-
-    public  void lambda$onCreate$1$OpenPDFFiles(int i, Throwable th) {
-        new CustomToast(this.context, th.getMessage());
-    }
-
-    public  void lambda$onCreate$2$OpenPDFFiles(int i) {
-        this.pdfView.getDocumentMeta();
-        printBookmarksTree(this.pdfView.getTableOfContents(), "-");
-    }
-
-    public  void lambda$onCreate$3$OpenPDFFiles(String str, int i, int i2) {
-        this.pageNumber = i;
-        setTitle(String.format("%s %s /%s", new Object[]{str, Integer.valueOf(i + 1), Integer.valueOf(i2)}));
-    }
-
-    public  void lambda$onCreate$4$OpenPDFFiles(int i, Throwable th) {
-        new CustomToast(this.context, th.getMessage());
-    }
-
-    public  void lambda$onCreate$5$OpenPDFFiles(int i) {
-        this.pdfView.getDocumentMeta();
-        printBookmarksTree(this.pdfView.getTableOfContents(), "-");
-    }
-
-    public void printBookmarksTree(List<PdfDocument.Bookmark> list, String str) {
-        for (PdfDocument.Bookmark next : list) {
-            if (next.hasChildren()) {
-                List<PdfDocument.Bookmark> children = next.getChildren();
-                printBookmarksTree(children, str + "-");
+                if (!file.exists()) throw new FileNotFoundException("File not found: " + file.getAbsolutePath());
+                parcelFileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
             }
+
+            pdfRenderer = new PdfRenderer(parcelFileDescriptor);
+            totalPages = pdfRenderer.getPageCount();
+
+            if (totalPages == 0) {
+                new CustomToast(this, "Empty PDF file");
+                finish();
+                return;
+            }
+
+            showPage(currentPageIndex);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            new CustomToast(this, "Failed to open PDF");
         }
+
+        btnPrev.setOnClickListener(v -> {
+            if (currentPageIndex > 0) {
+                currentPageIndex--;
+                showPage(currentPageIndex);
+            }
+        });
+
+        btnNext.setOnClickListener(v -> {
+            if (currentPageIndex < totalPages - 1) {
+                currentPageIndex++;
+                showPage(currentPageIndex);
+            }
+        });
+    }
+
+    private void showPage(int index) {
+        try {
+            if (pdfRenderer == null || index < 0 || index >= totalPages) return;
+
+            if (currentPage != null) currentPage.close();
+            currentPage = pdfRenderer.openPage(index);
+
+            int width = getResources().getDisplayMetrics().widthPixels;
+            int height = (int) (width * 1.414); // maintain A4 aspect ratio
+
+            Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            currentPage.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+            pdfImageView.setImageBitmap(bitmap);
+
+            btnPrev.setEnabled(index > 0);
+            btnNext.setEnabled(index < totalPages - 1);
+
+            setTitle("Page " + (index + 1) + " of " + totalPages);
+        } catch (Exception e) {
+            e.printStackTrace();
+            new CustomToast(this, "Failed to render PDF page");
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        try {
+            if (currentPage != null) currentPage.close();
+            if (pdfRenderer != null) pdfRenderer.close();
+            if (parcelFileDescriptor != null) parcelFileDescriptor.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        super.onDestroy();
     }
 }

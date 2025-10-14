@@ -1,6 +1,9 @@
 package com.myspps.pdfscanner.splashAds;
 
+import static android.view.View.VISIBLE;
+
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -10,6 +13,12 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
+import com.google.android.ads.nativetemplates.NativeTemplateStyle;
+import com.google.android.ads.nativetemplates.TemplateView;
+import com.google.android.gms.ads.AdLoader;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.nativead.NativeAd;
 import com.myspps.pdfscanner.R;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,6 +33,7 @@ public class AppThankYouActivity extends AppCompatActivity {
         setContentView(R.layout.activity_thankyou_app);
         WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
 
+        loadnative();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();
@@ -54,7 +64,26 @@ public class AppThankYouActivity extends AppCompatActivity {
     }
     @Override
     public void onBackPressed() {
-
+        super.onBackPressed();
     }
 
+    public void loadnative(){
+        MobileAds.initialize(this);
+        AdLoader adLoader = new AdLoader.Builder(this, getResources().getString(R.string.nativead))
+                .forNativeAd(new NativeAd.OnNativeAdLoadedListener() {
+                    @Override
+                    public void onNativeAdLoaded(NativeAd nativeAd) {
+                        NativeTemplateStyle styles = new
+                                NativeTemplateStyle.Builder().build();
+                        TemplateView template = findViewById(R.id.my_template);
+                        template.setStyles(styles);
+                        template.setNativeAd(nativeAd);
+                        template.setVisibility(VISIBLE);
+                    }
+                })
+                .build();
+
+        adLoader.loadAd(new AdRequest.Builder().build());
+
+    }
 }

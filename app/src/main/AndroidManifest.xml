@@ -37,6 +37,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application
+        android:name=".ads.MyApplication"
         android:allowBackup="true"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
@@ -44,11 +45,19 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PDFScanner">
         <meta-data
-            android:name="com.google.android.gms.ads.AD_MANAGER_APP"
-            android:value="true" />
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="@string/appid" />
         <meta-data
-            android:name="applovin.sdk.key"
-            android:value="9Mmo8af6r9Ra2RlaxqaPqUD6h8bhmuJpNkThxJR6Vgd7pr03LiTSe7pe9CwCf4l0HrX2f2lTK-P6HrH-RGeIq8" />
+            android:name="com.google.android.gms.ads.flag.NATIVE_AD_DEBUGGER_ENABLED"
+            android:value="true" />
+
+        <meta-data
+            android:name="com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION"
+            android:value="true"/>
+        <meta-data
+            android:name="com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING"
+            android:value="true"/>
+
 
 
         <activity

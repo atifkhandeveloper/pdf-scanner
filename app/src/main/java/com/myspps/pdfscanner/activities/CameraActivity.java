@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -27,6 +28,12 @@ import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.WindowCompat;
 import androidx.lifecycle.LifecycleOwner;
+
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
 import com.myspps.pdfscanner.R;
 import com.myspps.pdfscanner.model.ImageModel;
 import com.myspps.pdfscanner.utils.CustomToast;
@@ -70,14 +77,21 @@ public class CameraActivity extends AppCompatActivity {
     TextView tvImageSize;
     String type = "camera";
 
-    
+    private AdView adView;
+    private FrameLayout adContainerView;
+    LinearLayout adLayout;
+
+
+
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView((int) R.layout.activity_camera);
         WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
 
 
-
+        adLayout = findViewById(R.id.banner_ad_layout);
+        adContainerView = findViewById(R.id.ad_view_container);
+        loadBanner();
 
         this.previewView = (PreviewView) findViewById(R.id.perviewView);
         this.captureButton = (ImageView) findViewById(R.id.capture);
@@ -413,4 +427,48 @@ public class CameraActivity extends AppCompatActivity {
         dialogInterface.dismiss();
         super.onBackPressed();
     }
+
+    private void loadBanner() {
+        // [START create_ad_view]
+        // Create a new ad view.
+        adView = new AdView(this);
+        adView.setAdUnitId(getResources().getString(R.string.banner));
+        // [START set_ad_size]
+        // Request an anchored adaptive banner with a width of 360.
+        adView.setAdSize(AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, 360));
+        // [END set_ad_size]
+
+        // Replace ad container with new ad view.
+        adContainerView.removeAllViews();
+        adContainerView.addView(adView);
+        // [END create_ad_view]
+
+        // [START load_ad]
+        AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
+//        adLayout.setVisibility(View.VISIBLE);
+        // [END load_ad]
+    }
+
+    private void initializeMobileAdsSdk() {
+        // Set your test devices.
+        MobileAds.setRequestConfiguration(
+                new RequestConfiguration.Builder()
+//                        .setTestDeviceIds(Arrays.asList(TEST_DEVICE_HASHED_ID))
+                        .build());
+
+        // [START initialize_sdk]
+        new Thread(
+                () -> {
+                    // Initialize the Google Mobile Ads SDK on a background thread.
+                    MobileAds.initialize(this, initializationStatus -> {});
+                    // [START_EXCLUDE silent]
+                    // Load an ad on the main thread.
+                    runOnUiThread(this::loadBanner);
+                    // [END_EXCLUDE]
+                })
+                .start();
+        // [END initialize_sdk]
+    }
+
 }

@@ -48,7 +48,13 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     public void OpenAppAds() {
-                goNext();
+
+        MyApplication app = (MyApplication) getApplication();
+        app.showAdAfterSplash(this, () -> {
+            // Navigate to main screen after ad is dismissed or not ready
+            goNext();
+        });
+
 
     }
 

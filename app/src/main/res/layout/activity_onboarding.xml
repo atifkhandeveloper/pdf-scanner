@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="@color/white"
     android:padding="30dp"
@@ -20,7 +21,7 @@
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_530sdp" />
+        android:layout_height="@dimen/_500sdp" />
 
     <!-- Dot indicators -->
     <LinearLayout
@@ -28,7 +29,7 @@
         android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="5dp"
         android:orientation="horizontal" />
 
     <!-- Buttons -->
@@ -37,7 +38,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="right"
-        android:layout_marginTop="16dp">
+        android:layout_marginTop="5dp">
 
 
         <ImageView
@@ -49,4 +50,15 @@
             android:layout_marginRight="@dimen/_10sdp"
             android:layout_height="wrap_content" />
     </LinearLayout>
+
+
+    <com.google.android.ads.nativetemplates.TemplateView
+        android:id="@+id/my_template"
+        app:gnt_template_type="@layout/gnt_small_template_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone" /> <!-- default hidden until ad loads -->
+
 </LinearLayout>

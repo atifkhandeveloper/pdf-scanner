@@ -29,4 +29,11 @@
     <string name="title_activity_drawer">drawer</string>
     <string name="underline">EXIT</string>
 
+<!--    test ads-->
+    <string name="appid">ca-app-pub-3940256099942544~3347511713</string>
+    <string name="banner">ca-app-pub-3940256099942544/9214589741</string>
+    <string name="inter">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="nativead">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="appopen">ca-app-pub-3940256099942544/9257395921</string>
+
 </resources>
