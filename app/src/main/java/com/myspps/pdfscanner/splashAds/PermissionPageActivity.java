@@ -57,8 +57,8 @@ public class PermissionPageActivity extends AppCompatActivity {
         ((RelativeLayout) findViewById(R.id.btnPermission)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(PermissionPageActivity.this, FirstPageMainActivity.class);
-                startActivity(intent);
+//                Intent intent = new Intent(PermissionPageActivity.this, FirstPageMainActivity.class);
+//                startActivity(intent);
             }
         });
 

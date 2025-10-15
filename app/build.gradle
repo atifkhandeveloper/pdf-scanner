@@ -8,7 +8,7 @@ android {
     compileSdk 36
 
     defaultConfig {
-        applicationId "com.myspps.pdfscanner"
+        applicationId "com.asimapps.pdfconverter.docscanner"
         minSdk 26
         targetSdk 36
         versionCode 1
@@ -33,14 +33,14 @@ android {
     }
 
     // ✅ Only include the ABIs you need to reduce APK size
-    splits {
-        abi {
-            enable true
-            reset()
-            include "armeabi-v7a", "arm64-v8a" // common Android devices
-            universalApk false
-        }
-    }
+//    splits {
+//        abi {
+//            enable true
+//            reset()
+//            include "armeabi-v7a", "arm64-v8a" // common Android devices
+//            universalApk false
+//        }
+//    }
 
     packagingOptions {
         exclude "lib/arm64-v8a/libmodft2.so"
@@ -100,11 +100,7 @@ dependencies {
 
     implementation 'com.github.yalantis:ucrop:2.2.6'
     implementation 'com.heinrichreimersoftware:material-drawer:2.3.3'
-    //implementation 'com.github.barteksc:android-pdf-viewer:2.8.2'
-//    implementation ("com.github.mhiew:android-pdf-viewer:3.2.0-beta.1") {
-//        exclude group: 'com.github.barteksc', module: 'android-pdf-viewer-native'
-//    }
-//    implementation 'com.github.mhiew:android-pdf-viewer:3.2.0-beta.3'
+  
 
     implementation("com.google.android.gms:play-services-ads:24.7.0")
     implementation 'com.google.guava:guava:33.0.0-android'

@@ -30,10 +30,18 @@
     <string name="underline">EXIT</string>
 
 <!--    test ads-->
-    <string name="appid">ca-app-pub-3940256099942544~3347511713</string>
-    <string name="banner">ca-app-pub-3940256099942544/9214589741</string>
-    <string name="inter">ca-app-pub-3940256099942544/1033173712</string>
-    <string name="nativead">ca-app-pub-3940256099942544/2247696110</string>
-    <string name="appopen">ca-app-pub-3940256099942544/9257395921</string>
+<!--    <string name="appid">ca-app-pub-3940256099942544~3347511713</string>-->
+<!--    <string name="banner">ca-app-pub-3940256099942544/9214589741</string>-->
+<!--    <string name="inter">ca-app-pub-3940256099942544/1033173712</string>-->
+<!--    <string name="nativead">ca-app-pub-3940256099942544/2247696110</string>-->
+<!--    <string name="appopen">ca-app-pub-3940256099942544/9257395921</string>-->
+
+
+    <!--    reals ads-->
+    <string name="appid">ca-app-pub-5969006643846426~2153267143</string>
+    <string name="banner">ca-app-pub-5969006643846426/5434036602</string>
+    <string name="inter">ca-app-pub-5969006643846426/3931901603</string>
+    <string name="nativead">ca-app-pub-5969006643846426/7621216248</string>
+    <string name="appopen">ca-app-pub-5969006643846426/7296431541</string>
 
 </resources>

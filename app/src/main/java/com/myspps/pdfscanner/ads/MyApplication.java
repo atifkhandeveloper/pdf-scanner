@@ -123,7 +123,7 @@ public class MyApplication extends Application implements Application.ActivityLi
 
     // ------------------ INNER CLASS ------------------
     private class AppOpenAdManager {
-        private static final String AD_UNIT_ID = "ca-app-pub-3940256099942544/9257395921"; // test id
+        private static final String AD_UNIT_ID = "ca-app-pub-5969006643846426/7296431541";
         private AppOpenAd appOpenAd = null;
         private boolean isLoadingAd = false;
         private boolean isShowingAd = false;

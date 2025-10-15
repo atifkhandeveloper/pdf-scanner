@@ -71,9 +71,6 @@
         </activity>
 
         <activity
-            android:name="com.myspps.pdfscanner.splashAds.FirstPageMainActivity"
-            android:screenOrientation="portrait" />
-        <activity
             android:name="com.myspps.pdfscanner.splashAds.OnBoardingActivity"
             android:screenOrientation="portrait" />
         <activity
